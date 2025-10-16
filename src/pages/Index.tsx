@@ -3,6 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
+import RouletteGame from '@/components/RouletteGame';
+import SlotGame from '@/components/SlotGame';
+import BlackjackGame from '@/components/BlackjackGame';
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
@@ -300,49 +303,30 @@ const Index = () => {
                 </div>
               </>
             ) : (
-              <>
-                <div className="w-full max-w-2xl aspect-video bg-gradient-to-br from-gray-900 to-black rounded-xl border-2 border-primary flex items-center justify-center relative overflow-hidden">
-                  <div className="absolute inset-0 opacity-20">
-                    {[...Array(20)].map((_, i) => (
-                      <div
-                        key={i}
-                        className="absolute animate-pulse"
-                        style={{
-                          left: `${Math.random() * 100}%`,
-                          top: `${Math.random() * 100}%`,
-                          animationDelay: `${Math.random() * 2}s`
-                        }}
-                      >
-                        <Icon name="Sparkles" size={24} className="text-primary" />
-                      </div>
-                    ))}
-                  </div>
-                  <div className="text-center z-10 space-y-4">
-                    <Icon name={selectedGame?.icon || 'Play'} size={80} className="mx-auto text-primary animate-spin-slow" />
-                    <p className="text-2xl font-bold gold-text-gradient">Демо-версия игры</p>
-                    <p className="text-muted-foreground">Полная версия доступна после регистрации</p>
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <Button 
-                    size="lg"
-                    variant="outline"
-                    className="border-primary"
-                    onClick={() => {
-                      setDemoBalance(demoBalance - 50);
-                    }}
-                    disabled={demoBalance < 50}
-                  >
-                    <Icon name="Coins" size={20} className="mr-2" />
-                    Сделать ставку (50₽)
-                  </Button>
+              <div className="w-full max-w-3xl overflow-y-auto">
+                {selectedGame?.category === 'Рулетка' && (
+                  <RouletteGame 
+                    balance={demoBalance} 
+                    onBalanceChange={setDemoBalance}
+                  />
+                )}
+                {selectedGame?.category === 'Слоты' && (
+                  <SlotGame 
+                    balance={demoBalance} 
+                    onBalanceChange={setDemoBalance}
+                  />
+                )}
+                {selectedGame?.category === 'Игры' && (
+                  <BlackjackGame 
+                    balance={demoBalance} 
+                    onBalanceChange={setDemoBalance}
+                  />
+                )}
+                <div className="mt-6 flex gap-3 justify-center">
                   <Button 
                     size="lg"
                     className="bg-secondary hover:bg-secondary/90"
-                    onClick={() => {
-                      setIsPlaying(false);
-                      setDemoBalance(1000);
-                    }}
+                    onClick={() => setDemoBalance(1000)}
                   >
                     <Icon name="RotateCcw" size={20} className="mr-2" />
                     Сбросить баланс
@@ -356,10 +340,11 @@ const Index = () => {
                       setSelectedGame(null);
                     }}
                   >
+                    <Icon name="X" size={20} className="mr-2" />
                     Закрыть
                   </Button>
                 </div>
-              </>
+              </div>
             )}
           </div>
         </DialogContent>
