@@ -1,10 +1,14 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
+  const [selectedGame, setSelectedGame] = useState<any>(null);
+  const [demoBalance, setDemoBalance] = useState(1000);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const games = [
     {
@@ -228,11 +232,19 @@ const Index = () => {
                     <CardTitle className="mb-2 text-xl">{game.title}</CardTitle>
                     <CardDescription className="mb-4">{game.description}</CardDescription>
                     <div className="flex gap-2">
-                      <Button className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground">
+                      <Button 
+                        className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
+                        onClick={() => setSelectedGame(game)}
+                      >
                         <Icon name="Play" size={16} className="mr-2" />
                         Играть
                       </Button>
-                      <Button variant="outline" size="icon" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
+                        className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                        onClick={() => setSelectedGame(game)}
+                      >
                         <Icon name="Info" size={16} />
                       </Button>
                     </div>
@@ -243,6 +255,115 @@ const Index = () => {
           </div>
         </section>
       )}
+
+      <Dialog open={!!selectedGame} onOpenChange={(open) => !open && setSelectedGame(null)}>
+        <DialogContent className="max-w-4xl h-[80vh] bg-card border-primary">
+          <DialogHeader>
+            <DialogTitle className="text-2xl gold-text-gradient flex items-center gap-2">
+              <Icon name={selectedGame?.icon || 'Play'} size={28} />
+              {selectedGame?.title}
+            </DialogTitle>
+            <DialogDescription className="text-lg">
+              Демо-режим • Баланс: <span className="text-primary font-bold">{demoBalance}₽</span>
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex-1 flex flex-col items-center justify-center gap-6 py-8">
+            {!isPlaying ? (
+              <>
+                <div className={`w-48 h-48 rounded-full bg-gradient-to-br ${selectedGame?.color} flex items-center justify-center animate-pulse`}>
+                  <Icon name={selectedGame?.icon || 'Play'} size={96} className="text-white" />
+                </div>
+                <div className="text-center space-y-4">
+                  <h3 className="text-xl font-bold">Готовы к игре?</h3>
+                  <p className="text-muted-foreground max-w-md">
+                    {selectedGame?.description}
+                  </p>
+                  <div className="flex gap-3 justify-center">
+                    <Button 
+                      size="lg" 
+                      className="bg-primary hover:bg-primary/90"
+                      onClick={() => setIsPlaying(true)}
+                    >
+                      <Icon name="Play" size={20} className="mr-2" />
+                      Начать игру
+                    </Button>
+                    <Button 
+                      size="lg" 
+                      variant="outline"
+                      className="border-primary"
+                      onClick={() => setSelectedGame(null)}
+                    >
+                      Назад
+                    </Button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="w-full max-w-2xl aspect-video bg-gradient-to-br from-gray-900 to-black rounded-xl border-2 border-primary flex items-center justify-center relative overflow-hidden">
+                  <div className="absolute inset-0 opacity-20">
+                    {[...Array(20)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="absolute animate-pulse"
+                        style={{
+                          left: `${Math.random() * 100}%`,
+                          top: `${Math.random() * 100}%`,
+                          animationDelay: `${Math.random() * 2}s`
+                        }}
+                      >
+                        <Icon name="Sparkles" size={24} className="text-primary" />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="text-center z-10 space-y-4">
+                    <Icon name={selectedGame?.icon || 'Play'} size={80} className="mx-auto text-primary animate-spin-slow" />
+                    <p className="text-2xl font-bold gold-text-gradient">Демо-версия игры</p>
+                    <p className="text-muted-foreground">Полная версия доступна после регистрации</p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <Button 
+                    size="lg"
+                    variant="outline"
+                    className="border-primary"
+                    onClick={() => {
+                      setDemoBalance(demoBalance - 50);
+                    }}
+                    disabled={demoBalance < 50}
+                  >
+                    <Icon name="Coins" size={20} className="mr-2" />
+                    Сделать ставку (50₽)
+                  </Button>
+                  <Button 
+                    size="lg"
+                    className="bg-secondary hover:bg-secondary/90"
+                    onClick={() => {
+                      setIsPlaying(false);
+                      setDemoBalance(1000);
+                    }}
+                  >
+                    <Icon name="RotateCcw" size={20} className="mr-2" />
+                    Сбросить баланс
+                  </Button>
+                  <Button 
+                    size="lg"
+                    variant="outline"
+                    onClick={() => {
+                      setIsPlaying(false);
+                      setDemoBalance(1000);
+                      setSelectedGame(null);
+                    }}
+                  >
+                    Закрыть
+                  </Button>
+                </div>
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <footer className="border-t border-primary/30 bg-card/50 py-12 px-4 mt-20">
         <div className="container mx-auto">
